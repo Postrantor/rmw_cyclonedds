@@ -18,39 +18,55 @@
 
 #include <string>
 
-/// Return the demangle ROS topic or the original if not a ROS topic.
-std::string
-_demangle_if_ros_topic(const std::string & topic_name);
+/// 返回解析后的ROS主题，如果不是ROS主题，则返回原始主题。
+std::string _demangle_if_ros_topic(const std::string &topic_name);
 
-/// Return the demangled ROS type or the original if not a ROS type.
-std::string
-_demangle_if_ros_type(const std::string & dds_type_string);
+/// 返回解析后的ROS类型，如果不是ROS类型，则返回原始类型。
+std::string _demangle_if_ros_type(const std::string &dds_type_string);
 
-/// Return the topic name for a given topic if it is part of one, else "".
-std::string
-_demangle_ros_topic_from_topic(const std::string & topic_name);
+/**
+ * @brief 如果给定主题是某个主题的一部分，则返回该主题名称，否则返回空字符串。
+ * @param topic_name 主题名称
+ * @return 解析后的ROS主题或空字符串
+ */
+std::string _demangle_ros_topic_from_topic(const std::string &topic_name);
 
-/// Return the service name for a given topic if it is part of a service, else "".
-std::string
-_demangle_service_from_topic(const std::string & topic_name);
+/**
+ * @brief 如果给定主题是服务的一部分，则返回该服务名称，否则返回空字符串。
+ * @param topic_name 主题名称
+ * @return 解析后的服务名称或空字符串
+ */
+std::string _demangle_service_from_topic(const std::string &topic_name);
 
-/// Return the service name for a given topic if it is part of a service request, else "".
-std::string
-_demangle_service_request_from_topic(const std::string & topic_name);
+/**
+ * @brief 如果给定主题是服务请求的一部分，则返回该服务名称，否则返回空字符串。
+ * @param topic_name 主题名称
+ * @return 解析后的服务请求名称或空字符串
+ */
+std::string _demangle_service_request_from_topic(const std::string &topic_name);
 
-/// Return the service name for a given topic if it is part of a service reply, else "".
-std::string
-_demangle_service_reply_from_topic(const std::string & topic_name);
+/**
+ * @brief 如果给定主题是服务回复的一部分，则返回该服务名称，否则返回空字符串。
+ * @param topic_name 主题名称
+ * @return 解析后的服务回复名称或空字符串
+ */
+std::string _demangle_service_reply_from_topic(const std::string &topic_name);
 
-/// Return the demangled service type if it is a ROS srv type, else "".
-std::string
-_demangle_service_type_only(const std::string & dds_type_name);
+/**
+ * @brief 如果是ROS srv类型，则返回解析后的服务类型，否则返回空字符串。
+ * @param dds_type_name DDS类型名称
+ * @return 解析后的服务类型或空字符串
+ */
+std::string _demangle_service_type_only(const std::string &dds_type_name);
 
-/// Used when ros names are not mangled.
-std::string
-_identity_demangle(const std::string & name);
+/**
+ * @brief 当ROS名称未被混淆时使用
+ * @param name 名称
+ * @return 原始名称
+ */
+std::string _identity_demangle(const std::string &name);
 
-
+// 定义解析函数和混淆函数类型
 using DemangleFunction = std::string (*)(const std::string &);
 using MangleFunction = DemangleFunction;
 

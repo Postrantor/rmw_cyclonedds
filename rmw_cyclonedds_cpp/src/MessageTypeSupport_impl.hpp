@@ -24,24 +24,37 @@
 #include "MessageTypeSupport.hpp"
 #include "rosidl_typesupport_introspection_cpp/field_types.hpp"
 
-namespace rmw_cyclonedds_cpp
-{
+namespace rmw_cyclonedds_cpp {
 
-template<typename MembersType>
-MessageTypeSupport<MembersType>::MessageTypeSupport(const MembersType * members)
-{
+/**
+ * @brief 构造函数，初始化MessageTypeSupport对象
+ *
+ * @tparam MembersType 成员类型
+ * @param[in] members 消息成员指针
+ */
+template <typename MembersType>
+MessageTypeSupport<MembersType>::MessageTypeSupport(const MembersType* members) {
+  // 断言members不为空
   assert(members);
+  // 设置成员变量
   this->members_ = members;
 
+  // 创建一个字符串流
   std::ostringstream ss;
+  // 获取消息的命名空间
   std::string message_namespace(this->members_->message_namespace_);
+  // 获取消息的名称
   std::string message_name(this->members_->message_name_);
+  // 如果消息命名空间不为空
   if (!message_namespace.empty()) {
-    // Find and replace C namespace separator with C++, in case this is using C typesupport
+    // 查找并替换C命名空间分隔符为C++命名空间分隔符，以防使用C类型支持
     message_namespace = std::regex_replace(message_namespace, std::regex("__"), "::");
+    // 将命名空间添加到字符串流中
     ss << message_namespace << "::";
   }
+  // 添加dds命名空间和消息名称到字符串流中
   ss << "dds_::" << message_name << "_";
+  // 设置MessageTypeSupport的名称
   this->setName(ss.str().c_str());
 }
 

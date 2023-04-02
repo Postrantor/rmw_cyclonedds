@@ -16,27 +16,35 @@
 
 using rmw_cyclonedds_cpp::Exception;
 
-Exception::Exception(const char * const & message)
-: m_message(message)
-{
-}
+/**
+ * @brief 构造函数
+ * @param message 错误信息字符串
+ */
+Exception::Exception(const char* const& message) : m_message(message) {}
 
-Exception::Exception(const Exception & ex)
-: m_message(ex.m_message)
-{
-}
+/**
+ * @brief 拷贝构造函数
+ * @param ex 另一个Exception对象
+ */
+Exception::Exception(const Exception& ex) : m_message(ex.m_message) {}
 
-Exception & Exception::operator=(const Exception & ex)
-{
+/**
+ * @brief 赋值运算符重载
+ * @param ex 另一个Exception对象
+ * @return 当前对象的引用
+ */
+Exception& Exception::operator=(const Exception& ex) {
   m_message = ex.m_message;
   return *this;
 }
 
-Exception::~Exception() throw()
-{
-}
+/**
+ * @brief 析构函数
+ */
+Exception::~Exception() throw() {}
 
-const char * Exception::what() const throw()
-{
-  return m_message.c_str();
-}
+/**
+ * @brief 获取错误信息字符串
+ * @return 错误信息字符串的常量指针
+ */
+const char* Exception::what() const throw() { return m_message.c_str(); }

@@ -16,20 +16,40 @@
 #define U16STRING_HPP_
 
 #include <string>
+
 #include "rosidl_runtime_c/u16string_functions.h"
 
-namespace rmw_cyclonedds_cpp
-{
+namespace rmw_cyclonedds_cpp {
 
-void u16string_to_wstring(
-  const rosidl_runtime_c__U16String & u16str, std::wstring & wstr);
+/**
+ * @brief 将rosidl_runtime_c__U16String类型的字符串转换为std::wstring类型的字符串
+ * @param u16str 输入的rosidl_runtime_c__U16String类型的字符串
+ * @param wstr 输出的std::wstring类型的字符串
+ */
+void u16string_to_wstring(const rosidl_runtime_c__U16String& u16str, std::wstring& wstr);
 
-bool wstring_to_u16string(
-  const std::wstring & wstr, rosidl_runtime_c__U16String & u16str);
+/**
+ * @brief 将std::wstring类型的字符串转换为rosidl_runtime_c__U16String类型的字符串
+ * @param wstr 输入的std::wstring类型的字符串
+ * @param u16str 输出的rosidl_runtime_c__U16String类型的字符串
+ * @return 转换成功返回true，否则返回false
+ */
+bool wstring_to_u16string(const std::wstring& wstr, rosidl_runtime_c__U16String& u16str);
 
-void u16string_to_wstring(const std::u16string & u16str, std::wstring & wstr);
+/**
+ * @brief 将std::u16string类型的字符串转换为std::wstring类型的字符串
+ * @param u16str 输入的std::u16string类型的字符串
+ * @param wstr 输出的std::wstring类型的字符串
+ */
+void u16string_to_wstring(const std::u16string& u16str, std::wstring& wstr);
 
-bool wstring_to_u16string(const std::wstring & wstr, std::u16string & u16str);
+/**
+ * @brief 将std::wstring类型的字符串转换为std::u16string类型的字符串
+ * @param wstr 输入的std::wstring类型的字符串
+ * @param u16str 输出的std::u16string类型的字符串
+ * @return 转换成功返回true，否则返回false
+ */
+bool wstring_to_u16string(const std::wstring& wstr, std::u16string& u16str);
 
 }  // namespace rmw_cyclonedds_cpp
 

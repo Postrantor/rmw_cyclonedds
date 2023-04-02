@@ -22,28 +22,49 @@
 
 struct CustomServiceInfo;
 
-namespace rmw_cyclonedds_cpp
-{
+//! \file service_type_support.hpp
+//!
+//! \brief rmw_cyclonedds_cpp 命名空间中的 ServiceTypeSupport 类模板及其派生类。
 
-template<typename MembersType>
-class ServiceTypeSupport : public TypeSupport<MembersType>
-{
-protected:
+namespace rmw_cyclonedds_cpp {
+
+//! \class ServiceTypeSupport
+//! \tparam MembersType 成员类型
+//!
+//! \brief 为服务类型提供支持的基类。
+template <typename MembersType>
+class ServiceTypeSupport : public TypeSupport<MembersType> {
+ protected:
+  //! \brief 构造函数
   ServiceTypeSupport();
 };
 
-template<typename ServiceMembersType, typename MessageMembersType>
-class RequestTypeSupport : public ServiceTypeSupport<MessageMembersType>
-{
-public:
-  explicit RequestTypeSupport(const ServiceMembersType * members);
+//! \class RequestTypeSupport
+//! \tparam ServiceMembersType 服务成员类型
+//! \tparam MessageMembersType 消息成员类型
+//!
+//! \brief 为请求类型提供支持的派生类。
+template <typename ServiceMembersType, typename MessageMembersType>
+class RequestTypeSupport : public ServiceTypeSupport<MessageMembersType> {
+ public:
+  //! \brief 显式构造函数
+  //!
+  //! \param[in] members 服务成员类型指针
+  explicit RequestTypeSupport(const ServiceMembersType* members);
 };
 
-template<typename ServiceMembersType, typename MessageMembersType>
-class ResponseTypeSupport : public ServiceTypeSupport<MessageMembersType>
-{
-public:
-  explicit ResponseTypeSupport(const ServiceMembersType * members);
+//! \class ResponseTypeSupport
+//! \tparam ServiceMembersType 服务成员类型
+//! \tparam MessageMembersType 消息成员类型
+//!
+//! \brief 为响应类型提供支持的派生类。
+template <typename ServiceMembersType, typename MessageMembersType>
+class ResponseTypeSupport : public ServiceTypeSupport<MessageMembersType> {
+ public:
+  //! \brief 显式构造函数
+  //!
+  //! \param[in] members 服务成员类型指针
+  explicit ResponseTypeSupport(const ServiceMembersType* members);
 };
 
 }  // namespace rmw_cyclonedds_cpp

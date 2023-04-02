@@ -17,20 +17,24 @@
 
 #include <limits>
 #include <string>
-
+// 使用宏定义SPECIALIZE_GENERIC_C_SEQUENCE，用于生成特定类型的C序列结构体和相关函数
 #define SPECIALIZE_GENERIC_C_SEQUENCE(C_NAME, C_TYPE) \
-  template<> \
-  struct GenericCSequence<C_TYPE> \
-  { \
-    using type = rosidl_runtime_c__ ## C_NAME ## __Sequence; \
- \
-    static void fini(type * array) { \
-      rosidl_runtime_c__ ## C_NAME ## __Sequence__fini(array); \
-    } \
- \
-    static bool init(type * array, size_t size) { \
-      return rosidl_runtime_c__ ## C_NAME ## __Sequence__init(array, size); \
-    } \
-  };
+  template <>  // 定义一个模板特化结构体GenericCSequence，用于处理特定类型C_TYPE的序列
+struct GenericCSequence<C_TYPE> {  // 使用type别名表示rosidl_runtime_c__##C_NAME##__Sequence类型
+  using type = rosidl_runtime_c__##C_NAME##__Sequence;
 
+  // 定义一个静态成员函数fini，用于释放type类型的数组内存
+  static void fini(type* array) {  // 调用rosidl_runtime_c__##C_NAME##__Sequence__fini函数释放内存
+    rosidl_runtime_c__##C_NAME##__Sequence__fini(array);
+  }
+
+  // 定义一个静态成员函数init，用于初始化type类型的数组，并指定大小为size
+  static bool init(
+      type* array,
+      size_t size) {  // 调用rosidl_runtime_c__##C_NAME##__Sequence__init函数进行初始化，并返回结果
+    return rosidl_runtime_c__##C_NAME##__Sequence__init(array, size);
+  }
+};
+
+// 结束宏定义保护
 #endif  // MACROS_HPP_

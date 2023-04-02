@@ -17,19 +17,42 @@
 
 #include "exception.hpp"
 
-namespace rmw_cyclonedds_cpp
-{
+namespace rmw_cyclonedds_cpp {
 
-class DeserializationException : public Exception
-{
+/**
+ * @class DeserializationException
+ * @brief 自定义异常类，用于处理反序列化过程中的错误
+ */
+class DeserializationException : public Exception {
 public:
-  explicit DeserializationException(const char * const & message);
-  DeserializationException(const DeserializationException & ex);
-  DeserializationException & operator=(const DeserializationException & ex);
+  /**
+   * @brief 构造函数
+   * @param message 错误信息字符串
+   */
+  explicit DeserializationException(const char* const& message);
 
+  /**
+   * @brief 拷贝构造函数
+   * @param ex 另一个DeserializationException对象
+   */
+  DeserializationException(const DeserializationException& ex);
+
+  /**
+   * @brief 赋值运算符重载
+   * @param ex 另一个DeserializationException对象
+   * @return 当前对象的引用
+   */
+  DeserializationException& operator=(const DeserializationException& ex);
+
+  /**
+   * @brief 析构函数
+   */
   virtual ~DeserializationException() throw();
 
-  static const char * const DEFAULT_MESSAGE;
+  /**
+   * @brief 默认错误信息字符串
+   */
+  static const char* const DEFAULT_MESSAGE;
 };
 
 }  // namespace rmw_cyclonedds_cpp

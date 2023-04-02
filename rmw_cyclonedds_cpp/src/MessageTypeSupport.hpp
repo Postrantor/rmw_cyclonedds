@@ -19,17 +19,42 @@
 #include <memory>
 
 #include "TypeSupport.hpp"
-#include "rosidl_typesupport_introspection_cpp/message_introspection.hpp"
 #include "rosidl_typesupport_introspection_cpp/field_types.hpp"
+#include "rosidl_typesupport_introspection_cpp/message_introspection.hpp"
 
-namespace rmw_cyclonedds_cpp
-{
-
-template<typename MembersType>
-class MessageTypeSupport : public TypeSupport<MembersType>
-{
+namespace rmw_cyclonedds_cpp {
+/**
+ * @brief 模板类 MessageTypeSupport，继承自 TypeSupport 类
+ *
+ * @tparam MembersType 成员类型参数
+ */
+template <typename MembersType>
+class MessageTypeSupport : public TypeSupport<MembersType> {
 public:
-  explicit MessageTypeSupport(const MembersType * members);
+  /**
+   * @brief 构造函数，初始化 MessageTypeSupport 对象
+   *
+   * @param members 指向 MembersType 类型的指针，用于初始化 TypeSupport 基类
+   */
+  explicit MessageTypeSupport(const MembersType* members);
+};
+
+}  // namespace rmw_cyclonedds_cpp
+namespace rmw_cyclonedds_cpp {
+/**
+ * @brief 模板类 MessageTypeSupport，继承自 TypeSupport 类
+ *
+ * @tparam MembersType 成员类型参数
+ */
+template <typename MembersType>
+class MessageTypeSupport : public TypeSupport<MembersType> {
+public:
+  /**
+   * @brief 构造函数，初始化 MessageTypeSupport 对象
+   *
+   * @param members 指向 MembersType 类型的指针，用于初始化 TypeSupport 基类
+   */
+  explicit MessageTypeSupport(const MembersType* members);
 };
 
 }  // namespace rmw_cyclonedds_cpp

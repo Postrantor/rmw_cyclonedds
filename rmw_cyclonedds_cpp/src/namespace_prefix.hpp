@@ -15,8 +15,13 @@
 #ifndef NAMESPACE_PREFIX_HPP_
 #define NAMESPACE_PREFIX_HPP_
 
+/// @brief ROS 话题前缀常量
 static const char ROS_TOPIC_PREFIX[] = "rt";
+
+/// @brief ROS 服务请求者前缀常量
 static const char ROS_SERVICE_REQUESTER_PREFIX[] = "rq";
+
+/// @brief ROS 服务响应前缀常量
 static const char ROS_SERVICE_RESPONSE_PREFIX[] = "rr";
 
 #endif  // NAMESPACE_PREFIX_HPP_

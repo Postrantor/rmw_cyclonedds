@@ -23,49 +23,62 @@
 #include "ServiceTypeSupport.hpp"
 #include "rosidl_typesupport_introspection_cpp/field_types.hpp"
 
-namespace rmw_cyclonedds_cpp
-{
+namespace rmw_cyclonedds_cpp {
 
-template<typename MembersType>
-ServiceTypeSupport<MembersType>::ServiceTypeSupport()
-{
-}
+// ServiceTypeSupport构造函数模板
+template <typename MembersType>
+ServiceTypeSupport<MembersType>::ServiceTypeSupport() {}
 
-template<typename ServiceMembersType, typename MessageMembersType>
+// RequestTypeSupport构造函数模板
+// @tparam ServiceMembersType 服务成员类型
+// @tparam MessageMembersType 消息成员类型
+// @param[in] members 服务成员指针
+template <typename ServiceMembersType, typename MessageMembersType>
 RequestTypeSupport<ServiceMembersType, MessageMembersType>::RequestTypeSupport(
-  const ServiceMembersType * members)
-{
+    const ServiceMembersType* members) {
+  // 断言members非空
   assert(members);
+  // 设置请求成员
   this->members_ = members->request_members_;
 
+  // 创建字符串流
   std::ostringstream ss;
+  // 获取服务命名空间和服务名称
   std::string service_namespace(members->service_namespace_);
   std::string service_name(members->service_name_);
   if (!service_namespace.empty()) {
-    // Find and replace C namespace separator with C++, in case this is using C typesupport
+    // 如果使用C类型支持，将C命名空间分隔符替换为C++
     service_namespace = std::regex_replace(service_namespace, std::regex("__"), "::");
     ss << service_namespace << "::";
   }
+  // 构建并设置类型名称
   ss << "dds_::" << service_name << "_Request_";
   this->setName(ss.str().c_str());
 }
 
-template<typename ServiceMembersType, typename MessageMembersType>
+// ResponseTypeSupport构造函数模板
+// @tparam ServiceMembersType 服务成员类型
+// @tparam MessageMembersType 消息成员类型
+// @param[in] members 服务成员指针
+template <typename ServiceMembersType, typename MessageMembersType>
 ResponseTypeSupport<ServiceMembersType, MessageMembersType>::ResponseTypeSupport(
-  const ServiceMembersType * members)
-{
+    const ServiceMembersType* members) {
+  // 断言members非空
   assert(members);
+  // 设置响应成员
   this->members_ = members->response_members_;
 
-
+  // 创建字符串流
   std::ostringstream ss;
+  // 获取服务命名空间和服务名称
   std::string service_namespace(members->service_namespace_);
   std::string service_name(members->service_name_);
   if (!service_namespace.empty()) {
-    // Find and replace C namespace separator with C++, in case this is using C typesupport
+    // 如果使用C类型支持，将C命名空间分隔符替换为C++
     service_namespace = std::regex_replace(service_namespace, std::regex("__"), "::");
     ss << service_namespace << "::";
   }
+  // 构建并设置类型名称
   ss << "dds_::" << service_name << "_Response_";
   this->setName(ss.str().c_str());
 }

@@ -14,11 +14,17 @@
 #ifndef RMW_VERSION_TEST_HPP_
 #define RMW_VERSION_TEST_HPP_
 
-/* True if the version of RMW is at least major.minor.patch */
-#define RMW_VERSION_GTE(major, minor, patch) ( \
-    major < RMW_VERSION_MAJOR || ( \
-      major == RMW_VERSION_MAJOR && ( \
-        minor < RMW_VERSION_MINOR || ( \
-          minor == RMW_VERSION_MINOR && patch <= RMW_VERSION_PATCH))))
+/**
+ * @file
+ * @brief 本文件包含一个宏，用于检查RMW版本是否大于等于给定的主要、次要和补丁版本。
+ */
 
-#endif  // RMW_VERSION_TEST_HPP_
+// 判断RMW版本是否大于等于给定的主要(major)、次要(minor)和补丁(patch)版本
+#define RMW_VERSION_GTE(major, minor, patch)                                                                                \
+  (major < RMW_VERSION_MAJOR || /* 如果给定的主要版本小于RMW的主要版本，则为真 */                       \
+   (major == RMW_VERSION_MAJOR && /* 如果给定的主要版本等于RMW的主要版本，则继续比较次要版本 */   \
+    (minor < RMW_VERSION_MINOR || /* 如果给定的次要版本小于RMW的次要版本，则为真 */                     \
+     (minor == RMW_VERSION_MINOR && /* 如果给定的次要版本等于RMW的次要版本，则继续比较补丁版本 */ \
+      patch <= RMW_VERSION_PATCH)))) /* 如果给定的补丁版本小于等于RMW的补丁版本，则为真 */
+
+#endif                               // RMW_VERSION_TEST_HPP_
