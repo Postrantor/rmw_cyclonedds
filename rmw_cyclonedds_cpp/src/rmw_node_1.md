@@ -46,8 +46,6 @@
 
 这些宏定义在 `rmw_node.cpp` 文件中用于处理各种错误情况，确保程序能够正确地与 CycloneDDS 通信。例如，在创建节点、发布者或订阅者时，可能需要检查输入参数是否有效，内存分配是否成功等。
 
-总之，这段代码主要用于实现 ROS2 项目中与 CycloneDDS 通信的底层功能，并提供了一系列宏定义来进行错误处理和检查。这些宏定义在整个 `rmw_node.cpp` 文件中被广泛使用，以确保程序能够正确地与 CycloneDDS 进行交互。
-
 ##
 
 ```cpp
@@ -85,14 +83,18 @@ const char *const eclipse_cyclonedds_identifier = "rmw_cyclonedds_cpp";
 const char *const eclipse_cyclonedds_serialization_format = "cdr";
 struct dds_instance_handle_hash {};
 static rmw_ret_t discovery_thread_stop(rmw_dds_common::Context &context);
+
 static bool dds_qos_to_rmw_qos(const dds_qos_t *dds_qos, rmw_qos_profile_t *qos_policies);
-static rmw_publisher_t *create_publisher(dds_entity_t dds_ppant,
-                                         dds_entity_t dds_pub,
-                                         const rosidl_message_type_support_t *type_supports,
-                                         const char *topic_name,
-                                         const rmw_qos_profile_t *qos_policies,
-                                         const rmw_publisher_options_t *publisher_options);
+
+static rmw_publisher_t *create_publisher(
+    dds_entity_t dds_ppant,
+    dds_entity_t dds_pub,
+    const rosidl_message_type_support_t *type_supports,
+    const char *topic_name,
+    const rmw_qos_profile_t *qos_policies,
+    const rmw_publisher_options_t *publisher_options);
 static rmw_ret_t destroy_publisher(rmw_publisher_t *publisher);
+
 static rmw_subscription_t *create_subscription(
     dds_entity_t dds_ppant,
     dds_entity_t dds_pub,
@@ -101,6 +103,7 @@ static rmw_subscription_t *create_subscription(
     const rmw_qos_profile_t *qos_policies,
     const rmw_subscription_options_t *subscription_options);
 static rmw_ret_t destroy_subscription(rmw_subscription_t *subscription);
+
 static rmw_guard_condition_t *create_guard_condition();
 static rmw_ret_t destroy_guard_condition(rmw_guard_condition_t *gc);
 ```
@@ -208,8 +211,6 @@ static void dds_listener_callback(dds_entity_t entity, void *arg) {};
 static void listener_set_event_callbacks(dds_listener_t *l, void *arg) {};
 ```
 
-这段代码是 ROS2 项目中的 `rmw_cyclonedds_cpp` 相关代码（`rmw_node.cpp`），主要涉及到与 rclcpp 的背景以及函数之间的相互联系。下面将对这份文件的功能和含义进行梳理和解释。
-
 ### 文件功能
 
 该文件主要实现了与 CycloneDDS 中间件交互的一些基本功能，包括获取实现标识符、获取序列化格式、设置日志级别等。同时，还定义了一些与 DDS 实体监听器相关的回调函数。
@@ -230,10 +231,6 @@ static void listener_set_event_callbacks(dds_listener_t *l, void *arg) {};
 
 7. **listener_set_event_callbacks(dds_listener_t *l, void *arg)**: 这是一个静态函数，用于设置 DDS 监听器的事件回调函数。参数 `l` 是要设置回调函数的监听器，`arg` 是用户自定义的回调参数。
 
-### 总结
-
-这份文件主要实现了与 CycloneDDS 中间件交互的基本功能，并定义了一些与 DDS 实体监听器相关的回调函数。通过这些函数，可以方便地在 ROS2 项目中使用 CycloneDDS 中间件进行通信。
-
 ##
 
 ```cpp
@@ -251,6 +248,7 @@ static void listener_set_event_callbacks(dds_listener_t *l, void *arg) {};
       data->event_unread_count[DDS_##EVENT_TYPE##_STATUS_ID]++;                \
     }                                                                          \
   }
+
 MAKE_DDS_EVENT_CALLBACK_FN(requested_deadline_missed, REQUESTED_DEADLINE_MISSED)
 MAKE_DDS_EVENT_CALLBACK_FN(liveliness_lost, LIVELINESS_LOST)
 MAKE_DDS_EVENT_CALLBACK_FN(offered_deadline_missed, OFFERED_DEADLINE_MISSED)
@@ -284,7 +282,7 @@ MAKE_DDS_EVENT_CALLBACK_FN(publication_matched, PUBLICATION_MATCHED)
 
 这些回调函数在不同的 DDS 事件发生时被触发，用于处理相应的事件。例如，当请求的期限错过时，将触发 `on_requested_deadline_missed_fn` 函数。
 
-##
+## callback & init_options
 
 ```cpp
 rmw_ret_t rmw_subscription_set_on_new_message_callback(
@@ -373,7 +371,7 @@ rmw_ret_t rmw_init_options_fini(rmw_init_options_t *init_options) {};
 
 这些函数与 `rclcpp` 库相关，主要用于处理节点、订阅者、服务和客户端之间的通信。通过设置回调函数，可以在特定事件发生时执行相应的操作，例如收到新消息、请求或响应。
 
-##
+## guid_to_gid
 
 ```cpp
 static void convert_guid_to_gid(const dds_guid_t &guid, rmw_gid_t &gid) {};
@@ -400,14 +398,15 @@ static bool get_user_data_key(const dds_qos_t *qos, const std::string key, std::
 
 这些函数与`rclcpp`库相关，因为它们处理了 ROS2 节点与底层 CycloneDDS 实现之间的交互。通过这些函数，`rclcpp`可以与 CycloneDDS 通信，以便在 ROS2 系统中创建和管理节点、发布者、订阅者等实体。
 
-##
+## handle
 
 ```cpp
 static void handle_ParticipantEntitiesInfo(dds_entity_t reader, void *arg) {};
 static void handle_DCPSParticipant(dds_entity_t reader, void *arg) {};
-static void handle_builtintopic_endpoint(dds_entity_t reader,
-                                         rmw_context_impl_t *impl,
-                                         bool is_reader) {};
+static void handle_builtintopic_endpoint(
+    dds_entity_t reader,
+    rmw_context_impl_t *impl,
+    bool is_reader) {};
 static void handle_DCPSSubscription(dds_entity_t reader, void *arg) {};
 static void handle_DCPSPublication(dds_entity_t reader, void *arg) {};
 ```
@@ -423,6 +422,38 @@ static void handle_DCPSPublication(dds_entity_t reader, void *arg) {};
 5. **handle_DCPSPublication**：此函数用于处理 DCPS 发布。当有关 DCPS 发布的信息发生变化时，此函数将被调用。它接收一个 `dds_entity_t` 类型的读取器和一个指向 `void` 类型的参数。
 
 这些函数与 `rclcpp` 有关，因为它们处理 ROS2 项目中的 DDS 实体。在 ROS2 中，`rclcpp` 是一个 C++ 库，提供了与 ROS 系统进行交互所需的基本功能。这些函数之间的相互联系主要是它们都处理 DDS 实体相关的事件，例如参与者、订阅和发布等。
+
+这段代码是 ROS2 项目中`rmw_dds_common`的一部分，主要用于处理 DDS（Data Distribution Service）实体相关的信息。代码包含了 6 个函数，它们之间的功能调用关系如下：
+
+1. `handle_ParticipantEntitiesInfo`：处理参与者实体信息的回调函数。
+
+   - 从`impl->common.sub`中循环读取消息，直到没有新消息为止。
+   - 调用`impl->common.graph_cache.update_participant_entities(msg)`更新参与者实体信息。
+
+2. `handle_DCPSParticipant`：处理 DCPSParticipant 的回调函数。
+
+   - 循环处理接收到的数据。
+   - 根据不同情况，对图缓存进行添加或移除参与者操作。
+
+3. `handle_builtintopic_endpoint`：处理内置主题端点的回调函数。
+
+   - 循环处理接收到的数据。
+   - 根据不同情况，对图缓存进行添加或移除实体操作。
+
+4. `handle_DCPSSubscription`：处理 DCPSSubscription 的函数。
+
+   - 调用`handle_builtintopic_endpoint(reader, impl, true)`处理订阅者端点信息。
+
+5. `handle_DCPSPublication`：处理 DCPSPublication 的函数。
+   - 调用`handle_builtintopic_endpoint(reader, impl, false)`处理发布者端点信息。
+
+这些函数共同完成了以下功能：
+
+- 处理参与者实体信息，更新图缓存中的参与者实体信息。
+- 处理 DCPSParticipant，根据实例状态和用户数据，对图缓存进行添加或移除参与者操作。
+- 处理内置主题端点，包括订阅者和发布者，根据实例状态、用户数据和 QoS 策略，对图缓存进行添加或移除实体操作。
+
+通过这些函数的相互调用，可以实现对 DDS 实体信息的处理和更新，以便在 ROS2 中正确地管理和使用这些实体。
 
 ##
 
@@ -593,7 +624,7 @@ rmw_ret_t rmw_deserialize(const rmw_serialized_message_t *serialized_message,
 
 总之，这个文件主要处理 ROS2 消息的序列化和反序列化操作，以便在 CycloneDDS 中间件中进行通信。这些操作对于实现 ROS2 节点之间的数据传输至关重要。
 
-##
+## topic
 
 ```cpp
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -605,8 +636,6 @@ static dds_entity_t create_topic(dds_entity_t pp,
 static dds_entity_t create_topic(dds_entity_t pp, const char *name, struct ddsi_sertype *sertype) {};
 void set_error_message_from_create_topic(dds_entity_t topic, const std::string &topic_name) {};
 ```
-
-这段代码是 ROS2 项目中的 `rmw_cyclonedds_cpp` 相关代码（`rmw_node.cpp` 文件）。ROS2（Robot Operating System 2）是一个用于机器人软件开发的灵活框架，而 rmw（ROS Middleware Interface）是 ROS2 中负责与底层通信中间件交互的抽象层。在这个例子中，底层通信中间件是 CycloneDDS。
 
 下面是对这段代码功能和含义的解释：
 
@@ -649,7 +678,7 @@ void set_error_message_from_create_topic(dds_entity_t topic, const std::string &
 
    如果创建主题时发生错误，此函数将设置适当的错误消息。
 
-##
+## publish
 
 ```cpp
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -680,8 +709,6 @@ static dds_duration_t rmw_duration_to_dds(rmw_time_t duration) {};
 static rmw_time_t dds_duration_to_rmw(dds_duration_t duration) {};
 ```
 
-这段代码是 ROS2（Robot Operating System 2）项目中的 `rmw_cyclonedds_cpp` 相关代码，位于 `rmw_node.cpp` 文件中。ROS2 是一个用于机器人软件开发的框架，提供了一套简单、灵活且可扩展的 API。`rmw_cyclonedds_cpp` 是 ROS2 中的一个 RMW（ROS Middleware）实现，使用 CycloneDDS 作为底层通信中间件。
-
 以下是这些函数的功能和含义：
 
 1. **rmw_publish**：发布一个 ROS 消息。这个函数接收一个 `rmw_publisher_t` 类型的指针（表示要发布的主题），一个 `void` 类型的指针（表示要发布的消息）以及一个 `rmw_publisher_allocation_t` 类型的指针（表示分配给发布者的内存）。该函数的返回值是一个 `rmw_ret_t` 类型，表示操作的结果（成功或失败）。
@@ -707,11 +734,14 @@ static rmw_time_t dds_duration_to_rmw(dds_duration_t duration) {};
 ## qos
 
 ```cpp
-static bool get_readwrite_qos(dds_entity_t handle, rmw_qos_profile_t *rmw_qos_policies) {};
-static dds_qos_t *create_readwrite_qos(const rmw_qos_profile_t *qos_policies,
-                                       const rosidl_type_hash_t &type_hash,
-                                       bool ignore_local_publications,
-                                       const std::string &extra_user_data) {};
+static bool get_readwrite_qos(
+    dds_entity_t handle,
+    rmw_qos_profile_t *rmw_qos_policies) {};
+static dds_qos_t *create_readwrite_qos(
+    const rmw_qos_profile_t *qos_policies,
+    const rosidl_type_hash_t &type_hash,
+    bool ignore_local_publications,
+    const std::string &extra_user_data) {};
 static rmw_qos_policy_kind_t dds_qos_policy_to_rmw_qos_policy(dds_qos_policy_id_t policy_id) {};
 static bool dds_qos_to_rmw_qos(const dds_qos_t *dds_qos, rmw_qos_profile_t *qos_policies) {};
 ```
@@ -731,7 +761,7 @@ static bool dds_qos_to_rmw_qos(const dds_qos_t *dds_qos, rmw_qos_profile_t *qos_
 > [!NOTE]
 > 更详细的内容在 `ros/rmw_node_*_`，有一些代码修改的内容
 
-##
+## publisher
 
 ```cpp
 static bool is_type_self_contained(const rosidl_message_type_support_t *type_supports){};
@@ -784,7 +814,7 @@ static rmw_ret_t destroy_publisher(rmw_publisher_t *publisher){};
 rmw_ret_t rmw_destroy_publisher(rmw_node_t *node, rmw_publisher_t *publisher){};
 ```
 
-这段代码是 ROS2 项目中的 `rmw_cyclonedds_cpp` 相关代码（`rmw_node.cpp`），主要涉及到发布者（Publisher）的创建、销毁以及与消息相关的操作。以下是对这些函数的功能和含义的梳理和解释：
+这段代码主要涉及到发布者（Publisher）的创建、销毁以及与消息相关的操作。以下是对这些函数的功能和含义的梳理和解释：
 
 1. `is_type_self_contained`：判断给定的消息类型是否为自包含类型。
 2. `create_cdds_publisher`：根据给定的参数创建一个 CycloneDDS 发布者对象。
@@ -808,7 +838,7 @@ rmw_ret_t rmw_destroy_publisher(rmw_node_t *node, rmw_publisher_t *publisher){};
 
 这些函数主要用于处理 ROS2 发布者相关的操作，包括创建、销毁、消息处理等。
 
-##
+## subscriber
 
 ```cpp
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -852,38 +882,25 @@ static rmw_ret_t destroy_subscription(rmw_subscription_t *subscription) {};
 rmw_ret_t rmw_destroy_subscription(rmw_node_t *node, rmw_subscription_t *subscription) {};
 ```
 
-这段代码是 ROS2（Robot Operating System 2）项目中的 `rmw_cyclonedds_cpp` 包的一部分。ROS2 是一个用于机器人应用的开源软件框架，而 rmw（ROS Middleware Interface）是 ROS2 中负责与底层通信中间件交互的抽象层。`rmw_cyclonedds_cpp` 是 CycloneDDS 的一个实现，CycloneDDS 是 Eclipse Foundation 提供的一个高性能、面向数据的通信中间件。
-
 在这个文件（`rmw_node.cpp`）中，主要定义了与订阅相关的函数。以下是各个函数的功能和含义：
 
 1. `create_cdds_subscription`：创建一个 CycloneDDS 订阅。输入参数包括 DDS 参与者（`dds_ppant`）、DDS 订阅者（`dds_sub`）、类型支持（`type_supports`）、主题名称（`topic_name`）、QoS 策略（`qos_policies`）以及是否忽略本地发布（`ignore_local_publications`）。
-
 2. `rmw_init_subscription_allocation`：初始化订阅分配。输入参数包括类型支持（`type_support`）、消息边界（`message_bounds`）以及订阅分配（`allocation`）。
-
 3. `rmw_fini_subscription_allocation`：清理订阅分配。输入参数为订阅分配（`allocation`）。
-
 4. `create_subscription`：创建一个订阅。输入参数包括 DDS 参与者（`dds_ppant`）、DDS 订阅者（`dds_sub`）、类型支持（`type_supports`）、主题名称（`topic_name`）、QoS 策略（`qos_policies`）以及订阅选项（`subscription_options`）。
-
 5. `rmw_create_subscription`：创建一个 rmw 订阅。输入参数包括节点（`node`）、类型支持（`type_supports`）、主题名称（`topic_name`）、QoS 策略（`qos_policies`）以及订阅选项（`subscription_options`）。
-
 6. `rmw_subscription_count_matched_publishers`：获取与给定订阅匹配的发布者数量。输入参数为订阅（`subscription`）和发布者计数（`publisher_count`）。
-
 7. `rmw_subscription_get_actual_qos`：获取订阅的实际 QoS 策略。输入参数为订阅（`subscription`）和 QoS 策略（`qos`）。
-
 8. `rmw_subscription_set_content_filter`：设置订阅的内容过滤器。输入参数为订阅（`subscription`）和过滤器选项（`options`）。
-
 9. `rmw_subscription_get_content_filter`：获取订阅的内容过滤器。输入参数为订阅（`subscription`）、分配器（`allocator`）和过滤器选项（`options`）。
-
 10. `destroy_subscription`：销毁订阅。输入参数为订阅（`subscription`）。
-
 11. `rmw_destroy_subscription`：销毁 rmw 订阅。输入参数为节点（`node`）和订阅（`subscription`）。
 
 这些函数之间的关系主要是通过调用来实现的。例如，`rmw_create_subscription` 函数会调用 `create_subscription` 函数来创建一个订阅，而 `create_subscription` 函数又会调用 `create_cdds_subscription` 函数来创建一个 CycloneDDS 订阅。
 
-##
+## take & loan
 
 ```cpp
-
 static void message_info_from_sample_info(
     const dds_sample_info_t &info, rmw_message_info_t *message_info){};
 static rmw_ret_t rmw_take_int(
@@ -947,8 +964,6 @@ static rmw_ret_t return_loaned_message_from_subscription_int(
 rmw_ret_t rmw_return_loaned_message_from_subscription(
     const rmw_subscription_t *subscription, void *loaned_message){};
 ```
-
-这段代码位于 ROS2 项目的 `rmw_cyclonedds_cpp` 包中，文件名为 `rmw_node.cpp`。ROS2（Robot Operating System 2）是一个用于机器人软件开发的灵活框架，它提供了一系列工具、库和约定，以简化跨多个计算机的任务执行和设备控制。在 ROS2 中，RMW（ROS Middleware）是一个抽象层，允许 ROS2 使用不同的底层通信中间件实现。`rmw_cyclonedds_cpp` 是一个 RMW 实现，它使用 CycloneDDS 作为底层通信中间件。
 
 这个文件主要包含了一系列与接收消息相关的函数。下面是每个函数的功能和含义：
 
@@ -1020,8 +1035,6 @@ rmw_ret_t rmw_take_event(const rmw_event_t *event_handle,
    - `event_info`：用于存储获取到的事件信息。
    - `taken`：布尔值，表示是否成功获取到事件信息。
 
-这些函数主要用于处理 ROS2 中的事件，例如初始化发布者和订阅者相关的事件、获取事件信息等。通过这些函数，ROS2 可以实现对底层通信库（如 CycloneDDS）的封装，使得上层应用可以更简单地进行机器人开发。
-
 ##
 
 ```cpp
@@ -1073,7 +1086,6 @@ rmw_ret_t rmw_wait(rmw_subscriptions_t *subs,
 ```cpp
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
-
 using get_matched_endpoints_fn_t =
     dds_return_t (*)(dds_entity_t h, dds_instance_handle_t *xs, size_t nxs);
 using BuiltinTopicEndpoint = std::
@@ -1224,8 +1236,6 @@ rmw_ret_t rmw_service_server_is_available(
 rmw_ret_t rmw_count_publishers(const rmw_node_t *node, const char *topic_name, size_t *count){};
 rmw_ret_t rmw_count_subscribers(const rmw_node_t *node, const char *topic_name, size_t *count){};
 ```
-
-在 ROS2 项目中，`rmw_cyclonedds_cpp` 是一个实现了 ROS2 中间件接口（RMW）的库，它使用 Cyclone DDS 作为底层通信层。这段代码（`rmw_node.cpp`）主要负责实现与节点、话题和服务相关的功能。下面是各个函数的功能和含义以及它们在 ROS2 系统中的作用：
 
 1. **rmw_get_node_names**：获取当前 ROS2 系统中所有活跃节点的名称和命名空间。此函数用于发现系统中存在的其他节点，以便进行通信和协同工作。
 
@@ -1382,8 +1392,6 @@ rmw_ret_t rmw_service_request_subscription_get_actual_qos(
     const rmw_service_t *service, rmw_qos_profile_t *qos){};
 bool rmw_feature_supported(rmw_feature_t feature){};
 ```
-
-这段代码是 ROS2 项目中的 `rmw_cyclonedds_cpp` 的一部分，位于 `rmw_node.cpp` 文件中。ROS2（Robot Operating System 2）是一个用于机器人软件开发的灵活框架。`rmw_cyclonedds_cpp` 是 ROS2 中的一个 RMW（ROS Middleware）实现，它使用 CycloneDDS 作为底层通信中间件。
 
 以下是这个文件中各个函数的功能和含义：
 

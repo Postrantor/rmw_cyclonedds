@@ -33,14 +33,15 @@
 #include <vector>         // 包含用于处理动态数组的 `std::vector` 容器。
 
 // 这些头文件在 ROS 2 的 rmw 层中使用，以实现与底层通信系统（如 DDS）的交互
+#include "dds/dds.h"  // 包含 DDS（Data Distribution Service）API 的主要头文件，用于实现 ROS 2 的底层通信。
+#include "dds/ddsc/dds_data_allocator.h"  // 包含 DDS 数据分配器 API，用于管理 DDS 数据对象的内存。
+#include "dds/ddsc/dds_loan_api.h"  // 包含 DDS 借款 API，用于处理数据样本的借款和归还。
+//
 #include "MessageTypeSupport.hpp"  // 包含与消息类型支持相关的类和函数。
 #include "Serialization.hpp"  // 包含序列化和反序列化功能，用于在 ROS 2 中传输消息。
 #include "ServiceTypeSupport.hpp"  // 包含与服务类型支持相关的类和函数。
 #include "TypeSupport2.hpp"  // 包含与类型支持相关的类和函数，用于处理不同的数据类型。
-#include "dds/dds.h"  // 包含 DDS（Data Distribution Service）API 的主要头文件，用于实现 ROS 2 的底层通信。
-#include "dds/ddsc/dds_data_allocator.h"  // 包含 DDS 数据分配器 API，用于管理 DDS 数据对象的内存。
-#include "dds/ddsc/dds_loan_api.h"  // 包含 DDS 借款 API，用于处理数据样本的借款和归还。
-#include "demangle.hpp"             // 包含用于解析 C++ 符号名称的函数。
+#include "demangle.hpp"  // 包含用于解析 C++ 符号名称的函数。
 #include "fallthrough_macro.hpp"  // 定义了一个宏，用于标记 switch 语句中的故意穿越行为。
 #include "namespace_prefix.hpp"  // 包含用于处理 ROS 2 命名空间前缀的函数。
 #include "rcpputils/scope_exit.hpp"  // 包含用于在作用域结束时执行清理操作的实用程序。
@@ -49,7 +50,8 @@
 #include "rcutils/format_string.h"   // 包含用于格式化字符串的实用程序。
 #include "rcutils/logging_macros.h"  // 包含用于记录日志的宏。
 #include "rcutils/strdup.h"          // 包含用于复制字符串的实用程序。
-#include "rmw/allocators.h"          // 包含用于管理内存分配器的实用程序。
+//
+#include "rmw/allocators.h"  // 包含用于管理内存分配器的实用程序。
 #include "rmw/convert_rcutils_ret_to_rmw_ret.h"  // 包含用于将 rcutils 返回值转换为 rmw 返回值的函数。
 #include "rmw/error_handling.h"       // 包含用于处理错误的实用程序。
 #include "rmw/event.h"                // 包含用于处理 ROS 2 事件的实用程序。
@@ -72,8 +74,9 @@
 #include "rmw_dds_common/graph_cache.hpp"  // 包含用于管理图形缓存的类和函数。
 #include "rmw_dds_common/msg/participant_entities_info.hpp"  // 包含参与者实体信息消息的定义。
 #include "rmw_dds_common/qos.hpp"  // 包含用于处理 QoS（Quality of Service）设置的实用程序。
-#include "rmw_dds_common/security.hpp"   // 包含用于处理 DDS 安全性的实用程序。
-#include "rmw_version_test.hpp"          // 包含用于测试 rmw 版本的实用程序。
+#include "rmw_dds_common/security.hpp"  // 包含用于处理 DDS 安全性的实用程序。
+#include "rmw_version_test.hpp"         // 包含用于测试 rmw 版本的实用程序。
+//
 #include "rosidl_runtime_c/type_hash.h"  // 包含用于计算类型哈希值的实用程序。
 #include "rosidl_typesupport_cpp/message_type_support.hpp"  // 包含用于处理 C++ 消息类型支持的实用程序。
 #include "serdata.hpp"              // 包含与序列化数据相关的类和函数。
@@ -529,7 +532,7 @@ struct CddsPublisher : CddsEntity {
   rosidl_message_type_support_t type_supports;  ///< 消息类型支持。
   dds_data_allocator_t data_allocator;          ///< 数据分配器。
   uint32_t sample_size;                         ///< 样本大小。
-  bool is_loaning_available;                    ///< 是否支持贷款功能。
+  bool is_loaning_available;                    ///< 是否支持loan功能。
   user_callback_data_t user_callback_data;      ///< 用户回调数据结构体实例。
 };
 
@@ -542,7 +545,7 @@ struct CddsSubscription : CddsEntity {
   dds_entity_t rdcondh;                         ///< 读取条件句柄。
   rosidl_message_type_support_t type_supports;  ///< 消息类型支持。
   dds_data_allocator_t data_allocator;          ///< 数据分配器。
-  bool is_loaning_available;                    ///< 是否支持贷款功能。
+  bool is_loaning_available;                    ///< 是否支持loan功能。
   user_callback_data_t user_callback_data;      ///< 用户回调数据结构体实例。
 };
 
@@ -1260,8 +1263,7 @@ static bool get_user_data_key(const dds_qos_t *qos, const std::string key, std::
   return false;
 }
 
-/**
- * @brief 处理参与者实体信息的回调函数
+/** @brief 处理参与者实体信息的回调函数
  *
  * @param[in] reader DDS实体的reader对象
  * @param[in] arg 指向rmw_context_impl_t结构体的指针，包含了ROS2上下文的实现细节
@@ -1283,8 +1285,7 @@ static void handle_ParticipantEntitiesInfo(dds_entity_t reader, void *arg) {
   }
 }
 
-/**
- * @brief 处理DCPSParticipant的回调函数
+/** @brief 处理DCPSParticipant的回调函数
  *
  * @param[in] reader 读取到的DDS实体
  * @param[in] arg 传递给回调函数的参数，这里是rmw_context_impl_t类型
@@ -1324,15 +1325,16 @@ static void handle_DCPSParticipant(dds_entity_t reader, void *arg) {
   }
 }
 
-/**
- * @brief 处理内置主题端点的回调函数
+/** @brief 处理内置主题端点的回调函数
  *
  * @param[in] reader 读取到的DDS实体
  * @param[in] impl rmw_context_impl_t类型的指针
  * @param[in] is_reader 是否为读者端点，true表示是读者端点，false表示是写者端点
  */
 static void handle_builtintopic_endpoint(
-    dds_entity_t reader, rmw_context_impl_t *impl, bool is_reader) {
+    dds_entity_t reader,       //
+    rmw_context_impl_t *impl,  //
+    bool is_reader) {
   dds_sample_info_t si;
   void *raw = NULL;
 
@@ -1389,8 +1391,7 @@ static void handle_builtintopic_endpoint(
   }
 }
 
-/**
- * @brief 处理DCPSSubscription的函数
+/** @brief 处理DCPSSubscription的函数
  *
  * @param[in] reader 一个dds_entity_t类型的reader实体，用于读取订阅者信息
  * @param[in] arg 一个指向rmw_context_impl_t类型的指针，用于存储ROS2上下文实现的信息
@@ -1398,13 +1399,11 @@ static void handle_builtintopic_endpoint(
 static void handle_DCPSSubscription(dds_entity_t reader, void *arg) {
   // 将arg转换为rmw_context_impl_t类型的指针
   rmw_context_impl_t *impl = static_cast<rmw_context_impl_t *>(arg);
-
   // 调用handle_builtintopic_endpoint函数处理订阅者端点信息
   handle_builtintopic_endpoint(reader, impl, true);
 }
 
-/**
- * @brief 处理DCPSPublication的函数
+/** @brief 处理DCPSPublication的函数
  *
  * @param[in] reader 一个dds_entity_t类型的reader实体，用于读取发布者信息
  * @param[in] arg 一个指向rmw_context_impl_t类型的指针，用于存储ROS2上下文实现的信息
@@ -1412,7 +1411,6 @@ static void handle_DCPSSubscription(dds_entity_t reader, void *arg) {
 static void handle_DCPSPublication(dds_entity_t reader, void *arg) {
   // 将arg转换为rmw_context_impl_t类型的指针
   rmw_context_impl_t *impl = static_cast<rmw_context_impl_t *>(arg);
-
   // 调用handle_builtintopic_endpoint函数处理发布者端点信息
   handle_builtintopic_endpoint(reader, impl, false);
 }
@@ -2580,16 +2578,15 @@ extern "C" rmw_ret_t rmw_publish(
     const void *ros_message,
     rmw_publisher_allocation_t *allocation) {
   static_cast<void>(allocation);  // 未使用的参数
-  // 检查publisher是否为空，为空则返回无效参数错误
+  // 检查是否为空，为空则返回无效参数错误
   RMW_CHECK_FOR_NULL_WITH_MSG(
       publisher, "publisher handle is null", return RMW_RET_INVALID_ARGUMENT);
-  // 检查publisher的实现标识符是否与eclipse_cyclonedds_identifier匹配，不匹配则返回错误的RMW实现错误
   RMW_CHECK_TYPE_IDENTIFIERS_MATCH(
       publisher, publisher->implementation_identifier, eclipse_cyclonedds_identifier,
       return RMW_RET_INCORRECT_RMW_IMPLEMENTATION);
-  // 检查ros_message是否为空，为空则返回无效参数错误
   RMW_CHECK_FOR_NULL_WITH_MSG(
       ros_message, "ros message handle is null", return RMW_RET_INVALID_ARGUMENT);
+
   // 将publisher的data成员转换为CddsPublisher类型的指针
   auto pub = static_cast<CddsPublisher *>(publisher->data);
   assert(pub);
@@ -3014,39 +3011,19 @@ static dds_qos_t *create_readwrite_qos(
 static rmw_qos_policy_kind_t dds_qos_policy_to_rmw_qos_policy(dds_qos_policy_id_t policy_id) {
   // 使用switch语句根据不同的DDS QoS策略ID进行处理
   switch (policy_id) {
-    // 如果是DDS_DURABILITY_QOS_POLICY_ID
     case DDS_DURABILITY_QOS_POLICY_ID:
-      // 返回对应的RMW QoS策略：RMW_QOS_POLICY_DURABILITY
       return RMW_QOS_POLICY_DURABILITY;
-
-    // 如果是DDS_DEADLINE_QOS_POLICY_ID
     case DDS_DEADLINE_QOS_POLICY_ID:
-      // 返回对应的RMW QoS策略：RMW_QOS_POLICY_DEADLINE
       return RMW_QOS_POLICY_DEADLINE;
-
-    // 如果是DDS_LIVELINESS_QOS_POLICY_ID
     case DDS_LIVELINESS_QOS_POLICY_ID:
-      // 返回对应的RMW QoS策略：RMW_QOS_POLICY_LIVELINESS
       return RMW_QOS_POLICY_LIVELINESS;
-
-    // 如果是DDS_RELIABILITY_QOS_POLICY_ID
     case DDS_RELIABILITY_QOS_POLICY_ID:
-      // 返回对应的RMW QoS策略：RMW_QOS_POLICY_RELIABILITY
       return RMW_QOS_POLICY_RELIABILITY;
-
-    // 如果是DDS_HISTORY_QOS_POLICY_ID
     case DDS_HISTORY_QOS_POLICY_ID:
-      // 返回对应的RMW QoS策略：RMW_QOS_POLICY_HISTORY
       return RMW_QOS_POLICY_HISTORY;
-
-    // 如果是DDS_LIFESPAN_QOS_POLICY_ID
     case DDS_LIFESPAN_QOS_POLICY_ID:
-      // 返回对应的RMW QoS策略：RMW_QOS_POLICY_LIFESPAN
       return RMW_QOS_POLICY_LIFESPAN;
-
-    // 其他情况
     default:
-      // 返回无效的RMW QoS策略：RMW_QOS_POLICY_INVALID
       return RMW_QOS_POLICY_INVALID;
   }
 }
@@ -3294,7 +3271,7 @@ static CddsPublisher *create_cdds_publisher(
   dds_delete_listener(listener);
   // 设置类型支持信息
   pub->type_supports = *type_supports;
-  // 设置是否支持贷款功能
+  // 设置是否支持loan功能
   pub->is_loaning_available = is_fixed_type && dds_is_loan_available(pub->enth);
   // 设置样本大小
   pub->sample_size = sample_size;
@@ -3429,17 +3406,14 @@ static rmw_publisher_t *create_publisher(
   return rmw_publisher;
 }
 
-/**
- * @brief 创建一个ROS2发布者 (Create a ROS2 publisher)
+/** @brief 创建一个ROS2发布者 (Create a ROS2 publisher)
  *
- * @param[in] node 指向要创建发布者的节点的指针 (Pointer to the node where the publisher will be
- * created)
+ * @param[in] node 指向要创建发布者的节点的指针
  * @param[in] type_supports 消息类型支持结构体的指针 (Pointer to the message type support structure)
  * @param[in] topic_name 要发布的主题名称 (The name of the topic to publish)
  * @param[in] qos_policies 指向QoS策略的指针 (Pointer to the QoS policies)
  * @param[in] publisher_options 指向发布者选项的指针 (Pointer to the publisher options)
- * @return 成功时返回一个指向新创建的发布者的指针，失败时返回nullptr (On success, returns a pointer
- * to the newly created publisher, otherwise nullptr)
+ * @return 成功时返回一个指向新创建的发布者的指针，失败时返回nullptr
  */
 extern "C" rmw_publisher_t *rmw_create_publisher(
     const rmw_node_t *node,
@@ -3490,8 +3464,12 @@ extern "C" rmw_publisher_t *rmw_create_publisher(
 
   // 创建发布者 (Create the publisher)
   rmw_publisher_t *pub = create_publisher(
-      node->context->impl->ppant, node->context->impl->dds_pub, type_supports, topic_name,
-      &adapted_qos_policies, publisher_options);
+      node->context->impl->ppant,    //
+      node->context->impl->dds_pub,  //
+      type_supports,                 //
+      topic_name,                    //
+      &adapted_qos_policies,         //
+      publisher_options);
   if (pub == nullptr) {
     return nullptr;
   }
@@ -3741,15 +3719,11 @@ rmw_ret_t rmw_publisher_wait_for_all_acked(
  *         如果RMW实现不匹配，返回RMW_RET_INCORRECT_RMW_IMPLEMENTATION；其他错误情况返回RMW_RET_ERROR。
  */
 rmw_ret_t rmw_publisher_get_actual_qos(const rmw_publisher_t *publisher, rmw_qos_profile_t *qos) {
-  // 检查publisher参数是否为空，如果为空则返回RMW_RET_INVALID_ARGUMENT
+  // 检查参数是否为空
   RMW_CHECK_ARGUMENT_FOR_NULL(publisher, RMW_RET_INVALID_ARGUMENT);
-
-  // 检查publisher的实现标识符是否与期望的eclipse_cyclonedds_identifier匹配，如果不匹配则返回RMW_RET_INCORRECT_RMW_IMPLEMENTATION
   RMW_CHECK_TYPE_IDENTIFIERS_MATCH(
       publisher, publisher->implementation_identifier, eclipse_cyclonedds_identifier,
       return RMW_RET_INCORRECT_RMW_IMPLEMENTATION);
-
-  // 检查qos参数是否为空，如果为空则返回RMW_RET_INVALID_ARGUMENT
   RMW_CHECK_ARGUMENT_FOR_NULL(qos, RMW_RET_INVALID_ARGUMENT);
 
   // 将publisher->data转换为CddsPublisher类型的指针
@@ -3814,7 +3788,7 @@ static rmw_ret_t borrow_loaned_message_int(
     // 返回成功状态
     return RMW_RET_OK;
   } else {
-    // 不允许为非固定类型借用贷款
+    // 不允许为非固定类型借用loan
     RMW_SET_ERROR_MSG("Borrowing loan for a non fixed type is not allowed");
     return RMW_RET_ERROR;
   }
@@ -3881,7 +3855,7 @@ static rmw_ret_t return_loaned_message_from_publisher_int(
     // 结束并释放样本
     return fini_and_free_sample(cdds_publisher, loaned_message);
   } else {
-    // 不允许返回非固定类型的贷款
+    // 不允许返回非固定类型的loan
     RMW_SET_ERROR_MSG("returning loan for a non fixed type is not allowed");
     return RMW_RET_ERROR;
   }
@@ -4047,14 +4021,13 @@ static CddsSubscription *create_cdds_subscription(
     const char *topic_name,
     const rmw_qos_profile_t *qos_policies,
     bool ignore_local_publications) {
-  // 检查topic_name是否为空或空字符串，如果是则返回nullptr
+  // 检查是否为空或空字符串，如果是则返回nullptr
   RET_NULL_OR_EMPTYSTR_X(topic_name, return nullptr);
-  // 检查qos_policies是否为空，如果是则返回nullptr
   RET_NULL_X(qos_policies, return nullptr);
   // 获取类型支持
   const rosidl_message_type_support_t *type_support = get_typesupport(type_supports);
-  // 检查type_support是否为空，如果是则返回nullptr
   RET_NULL_X(type_support, return nullptr);
+
   // 创建一个CddsSubscription对象
   CddsSubscription *sub = new CddsSubscription();
   dds_entity_t topic;
@@ -4107,7 +4080,7 @@ static CddsSubscription *create_cdds_subscription(
   dds_delete_listener(listener);
   // 设置类型支持
   sub->type_supports = *type_support;
-  // 设置是否支持贷款功能
+  // 设置是否支持loan功能
   sub->is_loaning_available = is_fixed_type && dds_is_loan_available(sub->enth);
   // 删除QoS和主题
   dds_delete_qos(qos);
@@ -4171,7 +4144,7 @@ extern "C" rmw_ret_t rmw_fini_subscription_allocation(rmw_subscription_allocatio
 }
 
 /**
- * @brief 创建一个订阅者
+ * @brief 创建一个订阅者，并返回一个指向rmw_subscription_t的指针
  *
  * 在ROS2的RMW层创建一个订阅者，用于接收特定主题的消息。
  *
@@ -4196,7 +4169,11 @@ static rmw_subscription_t *create_subscription(
 
   // 如果创建CddsSubscription失败，则返回nullptr
   if ((sub = create_cdds_subscription(
-           dds_ppant, dds_sub, type_supports, topic_name, qos_policies,
+           dds_ppant,      //
+           dds_sub,        //
+           type_supports,  //
+           topic_name,     //
+           qos_policies,   //
            subscription_options->ignore_local_publications)) == nullptr) {
     return nullptr;
   }
@@ -4258,21 +4235,17 @@ extern "C" rmw_subscription_t *rmw_create_subscription(
     const char *topic_name,
     const rmw_qos_profile_t *qos_policies,
     const rmw_subscription_options_t *subscription_options) {
-  // 检查node参数是否为空
+  /// 前面是一系列的参数校验
+  // 检查参数是否为空
   RMW_CHECK_ARGUMENT_FOR_NULL(node, nullptr);
-  // 检查节点的实现标识符是否匹配
   RMW_CHECK_TYPE_IDENTIFIERS_MATCH(
       node, node->implementation_identifier, eclipse_cyclonedds_identifier, return nullptr);
-  // 检查type_supports参数是否为空
   RMW_CHECK_ARGUMENT_FOR_NULL(type_supports, nullptr);
-  // 检查topic_name参数是否为空
   RMW_CHECK_ARGUMENT_FOR_NULL(topic_name, nullptr);
-  // 检查topic_name是否为空字符串
-  if (0 == strlen(topic_name)) {
+  if (0 == strlen(topic_name)) {  // 检查topic_name是否为空字符串
     RMW_SET_ERROR_MSG("topic_name argument is an empty string");
     return nullptr;
   }
-  // 检查qos_policies参数是否为空
   RMW_CHECK_ARGUMENT_FOR_NULL(qos_policies, nullptr);
   // 如果不遵循ROS命名空间约定，则验证主题名称
   if (!qos_policies->avoid_ros_namespace_conventions) {
@@ -4290,7 +4263,10 @@ extern "C" rmw_subscription_t *rmw_create_subscription(
   // 适配最佳可用QoS选项
   rmw_qos_profile_t adapted_qos_policies = *qos_policies;
   rmw_ret_t ret = rmw_dds_common::qos_profile_get_best_available_for_topic_subscription(
-      node, topic_name, &adapted_qos_policies, rmw_get_publishers_info_by_topic);
+      node,                   //
+      topic_name,             //
+      &adapted_qos_policies,  //
+      rmw_get_publishers_info_by_topic);
   if (RMW_RET_OK != ret) {
     return nullptr;
   }
@@ -4304,10 +4280,15 @@ extern "C" rmw_subscription_t *rmw_create_subscription(
     return nullptr;
   }
 
+  /// 这里开始才是创建实体对象
   // 创建订阅者
   rmw_subscription_t *sub = create_subscription(
-      node->context->impl->ppant, node->context->impl->dds_sub, type_supports, topic_name,
-      &adapted_qos_policies, subscription_options);
+      node->context->impl->ppant,    //
+      node->context->impl->dds_sub,  //
+      type_supports,                 //
+      topic_name,                    //
+      &adapted_qos_policies,         //
+      subscription_options);
   if (sub == nullptr) {
     return nullptr;
   }
@@ -6172,6 +6153,7 @@ extern "C" rmw_ret_t rmw_wait(
   ws->trigs.resize(ntrig);  // 调整触发事件向量的大小为实际触发的事件数量
   std::sort(ws->trigs.begin(), ws->trigs.end());  // 对触发事件向量进行排序
   ws->trigs.push_back((dds_attach_t)-1);  // 在触发事件向量末尾添加一个-1作为结束标志
+}
 
 /**
  * @brief 处理DDS触发事件的宏函数。
@@ -6205,46 +6187,45 @@ extern "C" rmw_ret_t rmw_wait(
     }                                                                   \
   } while (0)
 
-  {
-    dds_attach_t trig_idx = 0;  // 初始化触发索引
-    bool dummy;                 // 定义一个虚拟布尔变量
-    size_t nelems = 0;          // 初始化元素计数器
+{
+  dds_attach_t trig_idx = 0;  // 初始化触发索引
+  bool dummy;                 // 定义一个虚拟布尔变量
+  size_t nelems = 0;          // 初始化元素计数器
 
-    // 处理CddsSubscription类型的事件
-    DETACH(CddsSubscription, subs, subscriber, rdcondh, (void)x);
-    // 处理CddsGuardCondition类型的事件
-    DETACH(
-        CddsGuardCondition, gcs, guard_condition, gcondh,
-        dds_take_guardcondition(x->gcondh, &dummy));
-    // 处理CddsService类型的事件
-    DETACH(CddsService, srvs, service, service.sub->rdcondh, (void)x);
-    // 处理CddsClient类型的事件
-    DETACH(CddsClient, cls, client, client.sub->rdcondh, (void)x);
+  // 处理CddsSubscription类型的事件
+  DETACH(CddsSubscription, subs, subscriber, rdcondh, (void)x);
+  // 处理CddsGuardCondition类型的事件
+  DETACH(
+      CddsGuardCondition, gcs, guard_condition, gcondh, dds_take_guardcondition(x->gcondh, &dummy));
+  // 处理CddsService类型的事件
+  DETACH(CddsService, srvs, service, service.sub->rdcondh, (void)x);
+  // 处理CddsClient类型的事件
+  DETACH(CddsClient, cls, client, client.sub->rdcondh, (void)x);
 
-    // 取消宏定义
+  // 取消宏定义
 #undef DETACH
 
-    // 处理活动事件
-    handle_active_events(evs);
-  }
+  // 处理活动事件
+  handle_active_events(evs);
+}
 
 #if REPORT_BLOCKED_REQUESTS
-  // 遍历 ws->cls 中的所有元素
-  for (auto const &c : ws->cls) {
-    // 检查每个元素是否有被阻塞的请求
-    check_for_blocked_requests(*c);
-  }
+// 遍历 ws->cls 中的所有元素
+for (auto const &c : ws->cls) {
+  // 检查每个元素是否有被阻塞的请求
+  check_for_blocked_requests(*c);
+}
 #endif
 
-  {
-    // 使用 std::lock_guard 对象对 ws->lock 进行加锁，保证线程安全
-    std::lock_guard<std::mutex> lock(ws->lock);
-    // 将 ws->inuse 设置为 false，表示当前 ws 不再使用中
-    ws->inuse = false;
-  }
+{
+  // 使用 std::lock_guard 对象对 ws->lock 进行加锁，保证线程安全
+  std::lock_guard<std::mutex> lock(ws->lock);
+  // 将 ws->inuse 设置为 false，表示当前 ws 不再使用中
+  ws->inuse = false;
+}
 
-  // 如果 ws->trigs 的大小为 1，则返回 RMW_RET_TIMEOUT，否则返回 RMW_RET_OK
-  return (ws->trigs.size() == 1) ? RMW_RET_TIMEOUT : RMW_RET_OK;
+// 如果 ws->trigs 的大小为 1，则返回 RMW_RET_TIMEOUT，否则返回 RMW_RET_OK
+return (ws->trigs.size() == 1) ? RMW_RET_TIMEOUT : RMW_RET_OK;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -8028,18 +8009,14 @@ extern "C" rmw_ret_t rmw_get_subscriptions_info_by_topic(
     const char *topic_name,
     bool no_mangle,
     rmw_topic_endpoint_info_array_t *subscriptions_info) {
-  // 检查 node 参数是否为空 (Check if node argument is NULL)
+  // 检查参数是否为空
   RMW_CHECK_ARGUMENT_FOR_NULL(node, RMW_RET_INVALID_ARGUMENT);
-  // 检查节点类型是否匹配 (Check if node type matches)
   RMW_CHECK_TYPE_IDENTIFIERS_MATCH(
       node, node->implementation_identifier, eclipse_cyclonedds_identifier,
       return RMW_RET_INCORRECT_RMW_IMPLEMENTATION);
-  // 检查分配器参数是否有效 (Check if allocator argument is valid)
   RCUTILS_CHECK_ALLOCATOR_WITH_MSG(
       allocator, "allocator argument is invalid", return RMW_RET_INVALID_ARGUMENT);
-  // 检查主题名称参数是否为空 (Check if topic_name argument is NULL)
   RMW_CHECK_ARGUMENT_FOR_NULL(topic_name, RMW_RET_INVALID_ARGUMENT);
-  // 检查订阅者信息数组是否为空 (Check if subscriptions_info array is empty)
   if (RMW_RET_OK != rmw_topic_endpoint_info_array_check_zero(subscriptions_info)) {
     return RMW_RET_INVALID_ARGUMENT;
   }

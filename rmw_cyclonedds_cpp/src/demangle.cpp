@@ -38,8 +38,8 @@ const char* const ros_service_requester_prefix = "rq";
 const char* const ros_service_response_prefix = "rr";
 
 // 定义一个std::vector<std::string>类型的常量，包含了上述三个ROS前缀
-const std::vector<std::string> _ros_prefixes = {ROS_TOPIC_PREFIX, ROS_SERVICE_REQUESTER_PREFIX,
-                                                ROS_SERVICE_RESPONSE_PREFIX};
+const std::vector<std::string> _ros_prefixes = {
+    ROS_TOPIC_PREFIX, ROS_SERVICE_REQUESTER_PREFIX, ROS_SERVICE_RESPONSE_PREFIX};
 }  // extern "C"
 
 /**
@@ -133,9 +133,8 @@ std::string _demangle_ros_topic_from_topic(const std::string& topic_name) {
 /// \param topic_name 一个表示主题名称的字符串引用
 /// \param suffix 一个表示后缀的字符串引用
 /// \return 如果主题名称是其中的一部分，则返回服务名称，否则返回空字符串
-std::string _demangle_service_from_topic(const std::string& prefix,
-                                         const std::string& topic_name,
-                                         std::string suffix) {
+std::string _demangle_service_from_topic(
+    const std::string& prefix, const std::string& topic_name, std::string suffix) {
   // 调用 _resolve_prefix 函数解析主题名称和前缀
   std::string service_name = _resolve_prefix(topic_name, prefix);
 
@@ -152,18 +151,20 @@ std::string _demangle_service_from_topic(const std::string& prefix,
     // 检查后缀是否位于服务名称的末尾
     if (service_name.length() - suffix_position - suffix.length() != 0) {
       // 如果后缀不在末尾，记录警告日志并返回空字符串
-      RCUTILS_LOG_WARN_NAMED("rmw_cyclonedds_cpp",
-                             "service topic has service prefix and a suffix, but not at the end"
-                             ", report this: '%s'",
-                             topic_name.c_str());
+      RCUTILS_LOG_WARN_NAMED(
+          "rmw_cyclonedds_cpp",
+          "service topic has service prefix and a suffix, but not at the end"
+          ", report this: '%s'",
+          topic_name.c_str());
       return "";
     }
   } else {
     // 如果没有找到后缀，记录警告日志并返回空字符串
-    RCUTILS_LOG_WARN_NAMED("rmw_cyclonedds_cpp",
-                           "service topic has prefix but no suffix"
-                           ", report this: '%s'",
-                           topic_name.c_str());
+    RCUTILS_LOG_WARN_NAMED(
+        "rmw_cyclonedds_cpp",
+        "service topic has prefix but no suffix"
+        ", report this: '%s'",
+        topic_name.c_str());
     return "";
   }
 
@@ -234,10 +235,11 @@ std::string _demangle_service_type_only(const std::string& dds_type_name) {
     suffix_position = dds_type_name.rfind(suffix);
     if (suffix_position != std::string::npos) {
       if (dds_type_name.length() - suffix_position - suffix.length() != 0) {
-        RCUTILS_LOG_WARN_NAMED("rmw_cyclonedds_cpp",
-                               "service type contains 'dds_::' and a suffix, but not at the end"
-                               ", report this: '%s'",
-                               dds_type_name.c_str());
+        RCUTILS_LOG_WARN_NAMED(
+            "rmw_cyclonedds_cpp",
+            "service type contains 'dds_::' and a suffix, but not at the end"
+            ", report this: '%s'",
+            dds_type_name.c_str());
         continue;
       }
       found_suffix = suffix;
@@ -247,10 +249,11 @@ std::string _demangle_service_type_only(const std::string& dds_type_name) {
 
   // 如果没有找到后缀，返回空字符串
   if (std::string::npos == suffix_position) {
-    RCUTILS_LOG_WARN_NAMED("rmw_cyclonedds_cpp",
-                           "service type contains 'dds_::' but does not have a suffix"
-                           ", report this: '%s'",
-                           dds_type_name.c_str());
+    RCUTILS_LOG_WARN_NAMED(
+        "rmw_cyclonedds_cpp",
+        "service type contains 'dds_::' but does not have a suffix"
+        ", report this: '%s'",
+        dds_type_name.c_str());
     return "";
   }
 
