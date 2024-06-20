@@ -2,6 +2,8 @@
 tag: #domain #discovery
 ---
 
+https://chatgpt.com/c/9380bc41-b33e-478a-942a-0c628a55e86b
+
 ## 对比 humble <-> jazzy 中 domain discovery 的区别
 
 这点在 ros2 的变更文档中也有更新：[rmw_cyclonedds] Improve handling of dynamic discovery (#429)
