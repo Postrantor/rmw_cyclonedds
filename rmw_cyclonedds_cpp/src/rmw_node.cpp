@@ -1,16 +1,13 @@
-// Copyright 2019 ADLINK Technology Limited.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/**
+ * @author postrantor@gmail.com
+ * @author gpt3.5
+ * @date 2024-08-23 15:36:12
+ * @copyright Copyright 2019 ADLINK Technology Limited.
+ */
+
+/*
+  - rmw_context_impl_s::init
+ */
 
 #include <algorithm>  // 包含用于算法的函数集合，例如排序和搜索。
 #include <atomic>     // 为无锁并发编程提供原子操作。
@@ -1742,22 +1739,19 @@ rmw_ret_t rmw_context_impl_s::init(rmw_init_options_t *options, size_t domain_id
      否则，在 Cyclone 实现 dds_create_domain 的原始版本中，
      rmw_destroy_node 删除最后一个参与者并拆除域时会发生竞争。 */
   this->domain_id = static_cast<dds_domainid_t>(domain_id);
-
   // 检查是否可以创建域
   if (!check_create_domain(this->domain_id, options->localhost_only)) {
     return RMW_RET_ERROR;
   }
 
   // 创建 QoS 配置并在出错时进行清理
-  std::unique_ptr<dds_qos_t, std::function<void(dds_qos_t *)>> ppant_qos(
-      dds_create_qos(), &dds_delete_qos);
+  std::unique_ptr<dds_qos_t, std::function<void(dds_qos_t *)>> ppant_qos(dds_create_qos(), &dds_delete_qos);
   if (ppant_qos == nullptr) {
     this->clean_up();
     return RMW_RET_BAD_ALLOC;
   }
   // 设置用户数据
-  std::string user_data =
-      std::string("enclave=") + std::string(options->enclave) + std::string(";");
+  std::string user_data = std::string("enclave=") + std::string(options->enclave) + std::string(";");
   dds_qset_userdata(ppant_qos.get(), user_data.c_str(), user_data.size());
   // 配置安全相关的 QoS 设置
   if (configure_qos_for_security(ppant_qos.get(), &options->security_options) != RMW_RET_OK) {
@@ -1767,7 +1761,7 @@ rmw_ret_t rmw_context_impl_s::init(rmw_init_options_t *options, size_t domain_id
     }
   }
 
-  // 创建 DDS 参与者
+  // 创建 DDS Participant
   this->ppant = dds_create_participant(this->domain_id, ppant_qos.get(), nullptr);
   if (this->ppant < 0) {
     this->clean_up();
